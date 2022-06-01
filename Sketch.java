@@ -44,7 +44,11 @@ public class Sketch extends PApplet {
   ArrayList<String> randomLetters = getLetterList();
 
   int intFontSize = 60;
- 
+
+  int intCellR;
+  int intCellG;
+  int intCellB;
+    
   public void settings() {
     // set window size according to width and height variables which are calculated using the cell and intMargin dimensions
     size(intWindowWidth, intWindowHeight);
@@ -65,24 +69,23 @@ public class Sketch extends PApplet {
   }
 
   public void draw() {
-    
-    strokeWeight(4);
-    stroke(193, 225, 193);
-    fill(1, 50, 32);
-
-    rect(centerHoriz(intGameWidth + intGameWidth / 28), centerVert(intGameHeight + intGameHeight / 28), intGameWidth + intGameWidth / 28, intGameHeight + intGameHeight / 28);
 
     int count = 0;
     for (int r  = 0; r < intRowCount; r++) {
       for (int c = 0; c < intColCount; c++) {
         // change colour to green if array value is true
         if (blnGrid[r][c] == true){
-          fill(0, 255, 0);
+          intCellR = 0;
+          intCellG = 255; 
+          intCellB = 0;
         }
         else {
-          fill(255);
+          intCellR = 255;
+          intCellG = 255; 
+          intCellB = 255;
         }
         
+        fill(intCellR, intCellG, intCellB);
         int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
         int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
         roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
@@ -94,8 +97,8 @@ public class Sketch extends PApplet {
         count++;
       }
     }
+    
   }
-
   public void roundedRect(int x, int y, int width, int height) {
     noStroke();
     rect(x + width / 10, y, width - width / 5, height);
@@ -104,8 +107,7 @@ public class Sketch extends PApplet {
     ellipse(x + width - width / 10, y + height / 10, width / 5, height / 5);
     ellipse(x + width / 10, y + height - height / 10, width / 5, height / 5);
     ellipse(x + width - width / 10, y + height - height / 10, width / 5, height / 5);
-  }
-
+    }
   public int centerHoriz(int intElementWidth) {
     return((intWindowWidth - intElementWidth) / 2);
   }
@@ -118,13 +120,158 @@ public class Sketch extends PApplet {
   public ArrayList<String> getLetterList() {
     ArrayList<String> letters = new ArrayList<String>();
 
-    for (String[] x : dices) {
-      String letter = x[(int) (Math.random() * 6)];
+    for (String[] dice : dices) {
+      String letter = dice[(int) (Math.random() * 6)];
       letters.add(letter);
     }
     return letters;
   }
 
-  public void mousePressed() {
+  public void mouseDragged() {
+    int intMargin2 = intCellWidth / 4;
+    int intCell2Width = intCellWidth / 2;
+    int intCell2Height = intCellHeight / 2;
+
+    // do a double for loop to go thru cols and rows, set gridcol and gridrow in them
+    for (int c = 0; c < intColCount; c++) {
+      for (int r = 0; r < intRowCount; r++) {
+        int intCellX1 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+        int intCellX2 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56 + intCell2Width;
+        int intCellY1 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+        int intCellY2 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56 + intCell2Height;
+
+        if ((mouseX > intCellX1) && (mouseX < intCellX2) && (mouseY > intCellY1) && (mouseY < intCellY2)) {
+          blnGrid[r][c] = true;
+        }
+        else {
+        }
+      }
+    }
   }
+
+  public void mousePressed() {
+    for (int c = 0; c < intColCount; c++) {
+      for (int r = 0; r < intRowCount; r++) {
+        int intCellX1 = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+        int intCellX2 = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56 + intCellWidth;
+        int intCellY1 = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+        int intCellY2 = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56 + intCellHeight;
+
+        if ((mouseX > intCellX1) && (mouseX < intCellX2) && (mouseY > intCellY1) && (mouseY < intCellY2)) {
+          blnGrid[r][c] = true;
+        }
+        else {
+        }
+      }
+    }
+  }
+
+  public void mouseReleased() {
+    int intGridCol = (int) ((mouseX - (intMargin + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellWidth));
+    int intGridRow = (int) ((mouseY - (intMargin + centerVert(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellHeight));
+    for (int c = 0; c < intColCount; c++){
+      for (int r = 0; r < intRowCount; r++){
+        blnGrid[c][r] = false;
+      }
+
+    }
+    //blnGrid[intGridRow][intGridCol] = false;
+  }
+/*
+  class wordHunt {
+    int intCellWidth; 
+    int intCellHeight;
+    int intRowCount;
+    int intColCount;
+    int intMargin;
+
+    int intCellR;
+    int intCellG;
+    int intCellB;
+
+    public wordHunt(int cellWidth, int cellHeight, int rowCount, int colCount, int margin){
+      intCellWidth = cellWidth; 
+      intCellHeight = cellHeight;
+      intRowCount = rowCount;
+      intColCount = colCount;
+      intMargin = margin;
+    }
+
+    public void drawBoard(){
+      strokeWeight(4);
+      stroke(193, 225, 193);
+      fill(1, 50, 32);
+
+      rect(centerHoriz(intGameWidth + intGameWidth / 28), centerVert(intGameHeight + intGameHeight / 28), intGameWidth + intGameWidth / 28, intGameHeight + intGameHeight / 28);
+    }
+
+    public void drawCells(){
+      int count = 0;
+      for (int r  = 0; r < intRowCount; r++) {
+        for (int c = 0; c < intColCount; c++) {
+          // change colour to green if array value is true
+          if (blnGrid[r][c] == true){
+            intCellR = 0;
+            intCellG = 255; 
+            intCellB = 0;
+          }
+          else {
+            intCellR = 255;
+            intCellG = 255; 
+            intCellB = 255;
+          }
+          
+          fill(intCellR, intCellG, intCellB);
+          int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+          int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+          roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
+
+          textAlign(CENTER, CENTER);
+          text(randomLetters.get(count), intCellX, intCellY, intCellWidth, intCellHeight);
+          count++;
+        }
+      }
+    }
+
+    public void roundedRect(int x, int y, int width, int height) {
+      noStroke();
+      rect(x + width / 10, y, width - width / 5, height);
+      rect(x, y + height / 10, width, height - height / 5);
+      ellipse(x + width / 10, y + height / 10, width / 5, height / 5);
+      ellipse(x + width - width / 10, y + height / 10, width / 5, height / 5);
+      ellipse(x + width / 10, y + height - height / 10, width / 5, height / 5);
+      ellipse(x + width - width / 10, y + height - height / 10, width / 5, height / 5);
+    }
+  }
+
+/*
+  class cell extends wordHunt {
+
+    int intCellR;
+    int intCellG;
+    int intCellB;
+
+    boolean isClicked;
+
+    public cell(int cellWidth, int cellHeight, int rowCount, int colCount, int margin){
+      super();
+    }
+
+    public void roundedRect(int x, int y, int width, int height) {
+      noStroke();
+      rect(x + width / 10, y, width - width / 5, height);
+      rect(x, y + height / 10, width, height - height / 5);
+      ellipse(x + width / 10, y + height / 10, width / 5, height / 5);
+      ellipse(x + width - width / 10, y + height / 10, width / 5, height / 5);
+      ellipse(x + width / 10, y + height - height / 10, width / 5, height / 5);
+      ellipse(x + width - width / 10, y + height - height / 10, width / 5, height / 5);
+    }
+
+    public void drawCell(int c, int r){
+      int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+      int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+      roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
+    }
+  }
+  */
 }
