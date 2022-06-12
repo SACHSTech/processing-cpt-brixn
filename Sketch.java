@@ -3,9 +3,13 @@ import processing.core.PImage;
 import processing.core.PFont;
 import java.util.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class Sketch extends PApplet {
 	
+  Timer timer = new Timer();
+
 	int intWindowWidth = 600;
   int intWindowHeight = 800;
 
@@ -44,6 +48,16 @@ public class Sketch extends PApplet {
   
   String[][] dices = {dice1, dice2, dice3, dice4, dice5, dice6, dice7, dice8, dice9, dice10, dice11, dice12, dice13, dice14, dice15, dice16};
 
+  ArrayList<String> threeLetterWords = new ArrayList<String>();
+  ArrayList<String> fourLetterWords = new ArrayList<String>();
+  ArrayList<String> fiveLetterWords = new ArrayList<String>();
+  ArrayList<String> sixLetterWords = new ArrayList<String>();
+  ArrayList<String> sevenLetterWords = new ArrayList<String>();
+  ArrayList<String> eightLetterWords = new ArrayList<String>();
+
+  ArrayList<ArrayList<String>> listOfLists = new ArrayList<ArrayList<String>>(Arrays.asList(threeLetterWords, fourLetterWords, fiveLetterWords, sixLetterWords, sevenLetterWords, eightLetterWords));
+  String[] types = {"3_letter_words.txt", "4_letter_words.txt", "5_letter_words.txt", "6_letter_words.txt", "7_letter_words.txt", "8_letter_words.txt"};
+
   PImage background;
   PImage imgWordHunt;
   PFont calibri;
@@ -51,8 +65,6 @@ public class Sketch extends PApplet {
 
   ArrayList<String> randomLetters = getLetterList();
   ArrayList<Cell> wordChars = new ArrayList<Cell>();
-  //ArrayList<Integer> cellCordsX = new  ArrayList<Integer>();
-  //ArrayList<Integer> cellCordsY = new ArrayList<Integer>();
 
   int intFontSize = 60;
 
@@ -68,6 +80,18 @@ public class Sketch extends PApplet {
   boolean homeScreen = true;
   boolean wordHunt = false;
   boolean wordHuntInst = false;
+  boolean checkCreateGameboard = true;
+  boolean checkDrawBg = true;
+  boolean results = false;
+
+  int points;
+
+  int cellMidX = 0;
+  int cellMidY = 0;
+  int prevCellMidX = 0;
+  int prevCellMidY = 0;
+
+  boolean newWord;
     
   public void settings() {
     // set window size according to width and height variables which are calculated using the cell and intMargin dimensions
@@ -76,9 +100,10 @@ public class Sketch extends PApplet {
 
   public void setup() {
 
+    frame.setAlwaysOnTop(true);
+
     background = loadImage("green.jpg");
     background.resize(intWindowWidth, intWindowHeight);
-    image(background, 0, 0);
 
     imgWordHunt = loadImage("word hunt.png");
     imgWordHunt.resize(125, 125);
@@ -86,10 +111,27 @@ public class Sketch extends PApplet {
     calibri = createFont("Calibri Bold", intFontSize);
     poppins = createFont("Poppins-ExtraBold.ttf", 70);
 
+    try {
+      for (int i = 0; i < types.length; i++) {
+        File file = new File(types[i]);
+        Scanner scanner = new Scanner(file);
+
+        while (scanner.hasNextLine()) {
+          listOfLists.get(i).add(scanner.nextLine());
+        }
+        scanner.close();
+      }
+    }
+    catch (FileNotFoundException ignored) {
+    }
   }
 
   public void draw() {
     if (homeScreen) {
+
+      image(background, 0, 0);
+      points = 0;
+
       textFont(poppins);
       textAlign(CENTER);
       fill(255);
@@ -102,66 +144,61 @@ public class Sketch extends PApplet {
       fill(255);
       text("Word Hunt", 175, 470);
 
+      //line(0, 0, 600, 500);
+
+
     }
 
     if (wordHuntInst) {
       image(background, 0, 0);
-      //rect()
+      fill(255);
+      rect(50, 150, 500, 500);
+      fill(20, 210, 40);
       rect(200, 550, 200, 60, 15);
+      fill(255);
+      textSize(16);
+      textAlign(CENTER, CENTER);
+      text("PRESS SPACE TO PLAY", 200, 550, 200, 60);
     }
 
-    if (keyPressed && key == 'c') {
+    if (keyPressed && key == ' ') {
       wordHunt = true;
-      image(background, 0, 0);
     }
 
     if (wordHunt) {
-
+      wordHuntInst = false;
       homeScreen = false;
       setupWordGrid();
       isSetup = true;
       stroke(0);
       strokeWeight(10);
-      createGameboard();
-
-      //if (mousePressed == true ) {
-        //line(mouseX, mouseY, pmouseX, pmouseY);
-      //}
-
-    }
-
-    /*
-    for (int r  = 0; r < intRowCount; r++) {
-      for (int c = 0; c < intColCount; c++) {
-        // change colour to green if array value is true
-        if (cGrid[r][c].getStatus() == true){
-          intCellR = 255;
-          intCellG = 255; 
-          intCellB = 255;
-        }
-        else {
-          intCellR = 235;
-          intCellG = 232; 
-          intCellB = 207;
-        }
-        
-        fill(intCellR, intCellG, intCellB);
-        int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
-        int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
-        roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
-
-        fill(0);
-        textFont(calibri);
-        textAlign(CENTER, CENTER);
-        text(randomLetters.get(count), intCellX, intCellY, intCellWidth, intCellHeight);
-        count++;
+      
+      if (checkDrawBg == true) {
+        image(background, 0, 0);
+        checkDrawBg = false;
       }
-    }
-    */
 
-    //rect(200, 300, 200, 300);
-    
-    //line(500, 200, 500, 500);
+      createGameboard(cellMidX, cellMidY, prevCellMidX, prevCellMidY);
+      //checkCreateGameboard = false;
+      //}else{  
+      //  checkCreateGameboard = true; 
+      
+
+      //line(0, 0, 500, 500);
+
+    }
+
+    if (keyPressed && key == 'p') {
+      results = true;
+    }
+    if (results) {
+      wordHunt = false;
+      image(background, 0, 0);
+      fill(0);
+      textSize(30);
+      textAlign(CENTER);
+      text("POINTS: " + points, width / 2, 200);
+    }
 
   }
 
@@ -196,48 +233,64 @@ public class Sketch extends PApplet {
 
   public void mouseDragged() {
     if (wordHunt) {
-      int intMargin2 = intCellWidth / 4;
-      int intCell2Width = intCellWidth / 2;
-      int intCell2Height = intCellHeight / 2;
 
       strokeCap(PROJECT);
-      strokeWeight(48);
-      //line(10, 10, 500, 500);
+      strokeWeight(10);
 
-      for (int c = 0; c < intColCount; c++) {
-        for (int r = 0; r < intRowCount; r++) {
-          int intCellX1 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
-          int intCellX2 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56 + intCell2Width;
-          int intCellY1 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
-          int intCellY2 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56 + intCell2Height;
-
-          if ((mouseX > intCellX1) && (mouseX < intCellX2) && (mouseY > intCellY1) && (mouseY < intCellY2) && cGrid[r][c].getStatus() == false && isAdjacent(r, c) && canSelect(cGrid[r][c], wordChars.get(cnt - 1))) {
-            wordChars.add(cGrid[r][c]);
-            cGrid[r][c].setStatus(true);
-            cGrid[r][c].setCellXY(intCellX1 + intCellWidth / 2, intCellY1 + intCellHeight / 2);
-
-            word += cGrid[r][c].getLetter();
-
-            textSize(40);
-            image(background, 0, 0);
-            text(word, (width / 2), 150);
-
-            //line(wordChars.get(cnt).getCellX(), wordChars.get(cnt).getCellY(), wordChars.get(cnt - 1).getCellX(), wordChars.get(cnt - 1).getCellY());
-            
-
-            cnt++;
-            
-            
-          
-          }
-          else {
-          }
-        }
-      } 
+      checkCreateGameboard = true;
+      displaySelectedText();
     }
   }
 
+  private void displaySelectedText(){
+    int intMargin2 = intCellWidth / 4;
+    int intCell2Width = intCellWidth / 2;
+    int intCell2Height = intCellHeight / 2;
+    int intCellX1;
+    int intCellX2;
+    int intCellY1;
+    int intCellY2;
+
+    for (int c = 0; c < intColCount; c++) {
+      for (int r = 0; r < intRowCount; r++) {
+        intCellX1 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+        intCellX2 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56 + intCell2Width;
+        intCellY1 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+        intCellY2 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56 + intCell2Height;
+
+        if ((mouseX > intCellX1) && (mouseX < intCellX2) && (mouseY > intCellY1) && (mouseY < intCellY2) && cGrid[r][c].getStatus() == false && isAdjacent(r, c) && canSelect(cGrid[r][c], wordChars.get(cnt - 1))) {
+          wordChars.add(cGrid[r][c]);
+          cGrid[r][c].setStatus(true);
+          cGrid[r][c].setCellXY(intCellX1 + intCellWidth / 2, intCellY1 + intCellHeight / 2);
+
+          word += cGrid[r][c].getLetter();
+          
+          image(background, 0, 0);
+          //createGameboard();
+          textSize(40);
+          text(word, (width / 2), 150);
+          cellMidX = wordChars.get(cnt).getCellX();
+          cellMidY = wordChars.get(cnt).getCellY();
+          prevCellMidX = wordChars.get(cnt - 1).getCellX();
+          prevCellMidY = wordChars.get(cnt - 1).getCellY();
+          createGameboard(cellMidX, cellMidY, prevCellMidX, prevCellMidY);
+          //line(mouseX, mouseY, pmouseX, pmouseY);
+          //line(wordChars.get(cnt).getCellX(), wordChars.get(cnt).getCellY(), wordChars.get(cnt - 1).getCellX(), wordChars.get(cnt - 1).getCellY());
+          
+          
+          doAddWord(cnt, word);
+
+          cnt++;
+          
+          
+        
+        }
+        
+      }
+    } 
+  }
   public void mousePressed() {
+    
     if (homeScreen) {
       if (mouseX > 112.5 && mouseY > 325 && mouseX < 237.5 && mouseY < 459) {
         wordHuntInst = true;
@@ -245,6 +298,7 @@ public class Sketch extends PApplet {
     }
 
     if (wordHunt) {
+      checkCreateGameboard = true;
       for (int c = 0; c < intColCount; c++) {
         for (int r = 0; r < intRowCount; r++) {
           int intCellX1 = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
@@ -260,6 +314,13 @@ public class Sketch extends PApplet {
             word += cGrid[r][c].getLetter();
             textSize(40);
             text(word, width / 2, 150);
+            
+            if (doAddWord(cnt, word) == 1) {
+              newWord = false;
+            }
+            else if (doAddWord(cnt, word) == 2) {
+              newWord = true;
+            }
             cnt++;
           }
           else {
@@ -271,7 +332,6 @@ public class Sketch extends PApplet {
 
   public void mouseReleased() {
 
-
     if (wordHunt) {
       int intGridCol = (int) ((mouseX - (intMargin + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellWidth));
       int intGridRow = (int) ((mouseY - (intMargin + centerVert(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellHeight));
@@ -281,9 +341,13 @@ public class Sketch extends PApplet {
         }
       }
       
+      if (doAddWord(cnt, word) == 2) {
+        wordList.add(word);
+      }
+
       image(background, 0, 0);
-      
-      wordList.add(word);
+      checkCreateGameboard = true;
+
       word = "";
       wordChars.clear();
       cnt = 0;
@@ -294,7 +358,41 @@ public class Sketch extends PApplet {
     }
   }
 
-  
+  public int doAddWord(int count, String word) {
+    if (wordList.contains(word)) {
+      //you already got the word
+      return 1;
+    }
+    else if (cnt == 3 && threeLetterWords.contains(word.toLowerCase())) {
+      //true
+      points += 100;
+      return 2;
+    }
+    else if (cnt == 4 && fourLetterWords.contains(word.toLowerCase())) {
+      points += 400;
+      return 2;
+    }
+    else if (cnt == 5 && fiveLetterWords.contains(word.toLowerCase())) {
+      points += 800;
+      return 2;
+    }
+    else if (cnt == 6 && sixLetterWords.contains(word.toLowerCase())) {
+      points += 1400;
+      return 2;
+    }
+    else if (cnt == 7 && sevenLetterWords.contains(word.toLowerCase())) {
+      points += 1800;
+      return 2;
+    }
+    else if (cnt == 8 && eightLetterWords.contains(word.toLowerCase())) {
+      points += 2200;
+      return 2;
+    }
+    else {
+      //false
+      return 3;
+    }
+  }
   public boolean isAdjacent(int r, int c) {
     if (r != 0 && r != 3 && c != 0 && c != 3) {
       return cGrid[r-1][c-1].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r-1][c+1].getStatus() || cGrid[r][c-1].getStatus() || cGrid[r][c+1].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r+1][c].getStatus() || cGrid[r+1][c+1].getStatus();
@@ -343,35 +441,41 @@ public class Sketch extends PApplet {
   /**
    * This method creates game board when its called
    */
-  private void createGameboard(){
+  private void createGameboard(int x, int y, int x2, int y2){
 
-    int count = 0;
-    for (int r  = 0; r < intRowCount; r++) {
-      for (int c = 0; c < intColCount; c++) {
-        // change colour to green if array value is true
-        if (cGrid[r][c].getStatus() == true){
-          intCellR = 255;
-          intCellG = 255; 
-          intCellB = 255;
-        }
-        else {
-          intCellR = 235;
-          intCellG = 232; 
-          intCellB = 207;
-        }
-        
-        fill(intCellR, intCellG, intCellB);
-        int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
-        int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
-        roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
+    if (checkCreateGameboard) {
 
-        fill(0);
-        textFont(calibri);
-        textAlign(CENTER, CENTER);
-        text(randomLetters.get(count), intCellX, intCellY, intCellWidth, intCellHeight);
-        count++;
+      int count = 0;
+      for (int r  = 0; r < intRowCount; r++) {
+        for (int c = 0; c < intColCount; c++) {
+          // change colour to white if array value is true
+          if (cGrid[r][c].getStatus()){
+            intCellR = 255;
+            intCellG = 255; 
+            intCellB = 255;
+          }
+          else {
+            intCellR = 235;
+            intCellG = 232; 
+            intCellB = 207;
+          }
+          
+          fill(intCellR, intCellG, intCellB);
+          int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+          int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+          roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
+
+          fill(0);
+          textFont(calibri);
+          textAlign(CENTER, CENTER);
+          text(randomLetters.get(count), intCellX, intCellY, intCellWidth, intCellHeight);
+          count++;
+
+          line(x, y, x2, y2);
+        }
       }
     }
+    checkCreateGameboard = false;
   }
 
   public void setupWordGrid() {
@@ -400,7 +504,21 @@ public class Sketch extends PApplet {
     }
   }
 
+  public void setDictionary() {
+    try {
+      for (int i = 0; i < types.length; i++) {
+        File file = new File(types[i]);
+        Scanner scanner = new Scanner(file);
 
+        while (scanner.hasNextLine()) {
+          listOfLists.get(i).add(scanner.nextLine());
+        }
+        scanner.close();
+      }
+    }
+    catch (FileNotFoundException ignored) {
+    }
+  }
   class Cell {
 
     // center coordinates of cells
@@ -410,6 +528,7 @@ public class Sketch extends PApplet {
     String letter;
 
     boolean isSelected;
+    boolean isNewWord;
 
     int intCellWidth; 
     int intCellHeight;
@@ -448,6 +567,7 @@ public class Sketch extends PApplet {
     public boolean getStatus() {
       return isSelected;
     }
+
     public int getNum() {
       return num;
     }
@@ -491,101 +611,4 @@ public class Sketch extends PApplet {
     }
 
   }
-/*
-  class wordHunt {
-    int intCellWidth; 
-    int intCellHeight;
-    int intRowCount;
-    int intColCount;
-    int intMargin;
-
-    int intCellR;
-    int intCellG;
-    int intCellB;
-
-    public wordHunt(int cellWidth, int cellHeight, int rowCount, int colCount, int margin){
-      intCellWidth = cellWidth; 
-      intCellHeight = cellHeight;
-      intRowCount = rowCount;
-      intColCount = colCount;
-      intMargin = margin;
-    }
-
-    public void drawBoard(){
-      strokeWeight(4);
-      stroke(193, 225, 193);
-      fill(1, 50, 32);
-
-      rect(centerHoriz(intGameWidth + intGameWidth / 28), centerVert(intGameHeight + intGameHeight / 28), intGameWidth + intGameWidth / 28, intGameHeight + intGameHeight / 28);
-    }
-
-    public void drawCells(){
-      int count = 0;
-      for (int r  = 0; r < intRowCount; r++) {
-        for (int c = 0; c < intColCount; c++) {
-          // change colour to green if array value is true
-          if (blnGrid[r][c] == true){
-            intCellR = 0;
-            intCellG = 255; 
-            intCellB = 0;
-          }
-          else {
-            intCellR = 255;
-            intCellG = 255; 
-            intCellB = 255;
-          }
-          
-          fill(intCellR, intCellG, intCellB);
-          int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
-          int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
-          roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
-
-          textAlign(CENTER, CENTER);
-          text(randomLetters.get(count), intCellX, intCellY, intCellWidth, intCellHeight);
-          count++;
-        }
-      }
-    }
-
-    public void roundedRect(int x, int y, int width, int height) {
-      noStroke();
-      rect(x + width / 10, y, width - width / 5, height);
-      rect(x, y + height / 10, width, height - height / 5);
-      ellipse(x + width / 10, y + height / 10, width / 5, height / 5);
-      ellipse(x + width - width / 10, y + height / 10, width / 5, height / 5);
-      ellipse(x + width / 10, y + height - height / 10, width / 5, height / 5);
-      ellipse(x + width - width / 10, y + height - height / 10, width / 5, height / 5);
-    }
-  }
-
-/*
-  class cell extends wordHunt {
-
-    int intCellR;
-    int intCellG;
-    int intCellB;
-
-    boolean isClicked;
-
-    public cell(int cellWidth, int cellHeight, int rowCount, int colCount, int margin){
-      super();
-    }
-
-    public void roundedRect(int x, int y, int width, int height) {
-      noStroke();
-      rect(x + width / 10, y, width - width / 5, height);
-      rect(x, y + height / 10, width, height - height / 5);
-      ellipse(x + width / 10, y + height / 10, width / 5, height / 5);
-      ellipse(x + width - width / 10, y + height / 10, width / 5, height / 5);
-      ellipse(x + width / 10, y + height - height / 10, width / 5, height / 5);
-      ellipse(x + width - width / 10, y + height - height / 10, width / 5, height / 5);
-    }
-
-    public void drawCell(int c, int r){
-      int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
-      int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
-      roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
-    }
-  }
-  */
 }
