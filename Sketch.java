@@ -55,7 +55,7 @@ public class Sketch extends PApplet {
   String[] types = {"3_letter_words.txt", "4_letter_words.txt", "5_letter_words.txt", "6_letter_words.txt", "7_letter_words.txt", "8_letter_words.txt"};
 
   PImage background;
-  PImage imgWordHunt;
+  PImage imgWordSearch;
   PImage imgDemoWH;
   PFont calibri;
   PFont poppins;
@@ -104,8 +104,8 @@ public class Sketch extends PApplet {
     background = loadImage("green.jpg");
     background.resize(intWindowWidth, intWindowHeight);
 
-    imgWordHunt = loadImage("word hunt.png");
-    imgWordHunt.resize(125, 125);
+    imgWordSearch = loadImage("word hunt.png");
+    imgWordSearch.resize(125, 125);
 
     imgDemoWH = loadImage("demo word hunt.png");
     imgDemoWH.resize(240, 240);
@@ -143,12 +143,13 @@ public class Sketch extends PApplet {
       fill(120, 200);
       rect(50, 250, 500, 300, 15);
 
-      image(imgWordHunt, (float)112.5, (float)325.0);
+      image(imgWordSearch, (float)112.5, (float)325.0);
 
       textSize(16);
       fill(255);
-      text("Word Hunt", 175, 470);
+      text("Word Search", 175, 470);
 
+      // I was originally going to make another game but I ran out of time
       rect((float)362.5, 325, 125, 125);
 
       text("coming soon", 425, 470);
@@ -177,27 +178,11 @@ public class Sketch extends PApplet {
       text("Connect letters togther by dragging your finger. Make as many words as you can.", 150, 190, 300, 80);
     }
 
-    if (keyPressed && key == ' ') {
+    if (keyPressed && key == ' ' && wordHuntInst == true) {
       wordHunt = true;
     }
 
     if (wordHunt) {
-      if (intTime == 0) {
-        results = true;
-      }
-      IntDisplayTime = intTime / 100;
-
-      if ((float)(intTime / 100) == (float)intTime / 100) {
-        text(IntDisplayTime.toString(), 0, 0);
-        System.out.println(IntDisplayTime);
-      }
-      intTime--;
-
-      noStroke();
-      rect(200, 50, 200, 80);
-      
-      text("", 200, 50, 200, 80);
-
       wordHuntInst = false;
       homeScreen = false;
       setupWordGrid();
@@ -213,25 +198,54 @@ public class Sketch extends PApplet {
         displaySelectedText();
       }
 
+      // go to results screen (end game) when time reaches 0 or if user presses control
+      if (intTime == 0 || (keyPressed && keyCode == CONTROL) && wordHunt == true) {
+        results = true;
+      }
+      IntDisplayTime = intTime / 100;
+
+      // white box to show words and points
+      noStroke();
+      fill(255);
+      rect(100, 0, 400, 100);
+
+      textAlign(LEFT);
+      fill(0);
+      textFont(poppins, 30);
+      text("SCORE: " + points, 140, 40);
+
+      textFont(poppins, 18);
+      text("words: " + wordList.size(), 140, 80);
+
+      fill(26, 76, 57);
+      rect(400, 90, 90, 30, 10);
+
+      textFont(calibri, 14);
+      textAlign(CENTER, CENTER);
+      fill(255);
+      text("time: " + IntDisplayTime.toString(), 400, 90, 90, 30);
+
+      // increment time by -1 every millisecond
+      intTime--;
+
     }
 
-    if (keyPressed && key == 'p') {
-      results = true;
-    }
     if (results) {
       wordHunt = false;
       image(background, 0, 0);
 
-      fill(0);
-      textSize(30);
-      textAlign(CENTER);
-      text("POINTS: " + points, width / 2, 200);
-    }
+      fill(255, 100);
+      rect(150, 150, 300, 550, 14);
 
+      fill(0);
+      textFont(poppins, 35);
+      textAlign(CENTER);
+      text("POINTS: " + points, width / 2, 100);
+    }
   }
 
   /**
-   * Created a rounded rectangle
+   * Creates a rounded rectangle (i was unaware of the rectangle radius value at this time)
    * @param x
    * @param y
    * @param width
@@ -277,7 +291,6 @@ public class Sketch extends PApplet {
 
       checkCreateGameboard = true;
       displayTextandConnectCell = true;
-      //displaySelectedText();
     }
   }
 
@@ -333,8 +346,8 @@ public class Sketch extends PApplet {
     for (int i=0; i< wordChars.size(); i ++){
       if (i >= 1){
         line(wordChars.get(i-1).getCellX(), wordChars.get(i-1).getCellY(), wordChars.get(i).getCellX(), wordChars.get(i).getCellY());
-      } else {
-
+      } 
+      else {
       }  
     }
   }
@@ -365,6 +378,8 @@ public class Sketch extends PApplet {
 
             wordChars.add(cGrid[r][c]);
             word += cGrid[r][c].getLetter();
+
+            fill(0);
             textSize(40);
             text(word, width / 2, 150);
             
@@ -577,6 +592,7 @@ public class Sketch extends PApplet {
     fill(0, 100);
     rect((intWindowWidth - intGameWidth) / 2, (intWindowHeight - intGameHeight) / 2, intGameWidth, intGameHeight, 15);
   }
+
   class Cell {
 
     // center coordinates of cells
