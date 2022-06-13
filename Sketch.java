@@ -7,8 +7,6 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Sketch extends PApplet {
-	
-  Timer timer = new Timer();
 
 	int intWindowWidth = 600;
   int intWindowHeight = 800;
@@ -23,8 +21,6 @@ public class Sketch extends PApplet {
   int intGameHeight = intCellHeight * intRowCount + intMargin * (intColCount + 1);
 
   Cell[][] cGrid = new Cell[intRowCount][intColCount];
-
-  String word = "";
 
   ArrayList<String> wordLetters = new ArrayList<String>();
   ArrayList<String> wordList = new ArrayList<String>();
@@ -60,6 +56,7 @@ public class Sketch extends PApplet {
 
   PImage background;
   PImage imgWordHunt;
+  PImage imgDemoWH;
   PFont calibri;
   PFont poppins;
 
@@ -78,21 +75,21 @@ public class Sketch extends PApplet {
 
   boolean isSetup = false;
   boolean homeScreen = true;
-  boolean wordHunt = false;
   boolean wordHuntInst = false;
-  boolean checkCreateGameboard = true;
-  boolean checkDrawBg = true;
+  boolean wordHunt = false;
   boolean results = false;
 
-  int points;
+  boolean checkCreateGameboard = true;
+  boolean displayTextandConnectCell = false;
+  boolean checkDrawBg = true;
 
-  int cellMidX = 0;
-  int cellMidY = 0;
-  int prevCellMidX = 0;
-  int prevCellMidY = 0;
+  String word = "";
+  int points;
 
   boolean newWord;
     
+  int time = 6000;
+
   public void settings() {
     // set window size according to width and height variables which are calculated using the cell and intMargin dimensions
     size(intWindowWidth, intWindowHeight);
@@ -107,6 +104,9 @@ public class Sketch extends PApplet {
 
     imgWordHunt = loadImage("word hunt.png");
     imgWordHunt.resize(125, 125);
+
+    imgDemoWH = loadImage("demo word hunt.png");
+    imgDemoWH.resize(240, 240);
 
     calibri = createFont("Calibri Bold", intFontSize);
     poppins = createFont("Poppins-ExtraBold.ttf", 70);
@@ -134,31 +134,45 @@ public class Sketch extends PApplet {
 
       textFont(poppins);
       textAlign(CENTER);
-      fill(255);
+      fill(10);
       text("WORD GAMES", 300, 210);
+
       noStroke();
-      fill(120);
+      fill(120, 200);
       rect(50, 250, 500, 300, 15);
+
       image(imgWordHunt, (float)112.5, (float)325.0);
+
       textSize(16);
       fill(255);
       text("Word Hunt", 175, 470);
 
-      //line(0, 0, 600, 500);
+      rect((float)362.5, 325, 125, 125);
 
-
+      text("coming soon", 425, 470);
     }
 
     if (wordHuntInst) {
       image(background, 0, 0);
+
       fill(255);
-      rect(50, 150, 500, 500);
-      fill(20, 210, 40);
+      rect(50, 120, 500, 530);
+
+      fill(135, 214, 141);
       rect(200, 550, 200, 60, 15);
-      fill(255);
-      textSize(16);
+
+      image(imgDemoWH, 180, 280);
+
+      fill(0);
+      textFont(calibri, 16);
       textAlign(CENTER, CENTER);
       text("PRESS SPACE TO PLAY", 200, 550, 200, 60);
+
+      textFont(poppins, 30);
+      text("How to play:", 50, 120, 500, 70);
+
+      textFont(calibri, 15);
+      text("Connect letters togther by dragging your finger. Make as many words as you can.", 150, 190, 300, 80);
     }
 
     if (keyPressed && key == ' ') {
@@ -166,25 +180,32 @@ public class Sketch extends PApplet {
     }
 
     if (wordHunt) {
+      if (time == 0) {
+        results = true;
+      }
+      time--;
+
+      noStroke();
+      rect(200, 50, 200, 80);
+      
+      text("", 200, 50, 200, 80);
+
+      //System.out.println(time / 100);
+
       wordHuntInst = false;
       homeScreen = false;
       setupWordGrid();
       isSetup = true;
-      stroke(0);
-      strokeWeight(10);
       
       if (checkDrawBg == true) {
-        image(background, 0, 0);
+        drawGridBg();
         checkDrawBg = false;
       }
 
-      createGameboard(cellMidX, cellMidY, prevCellMidX, prevCellMidY);
-      //checkCreateGameboard = false;
-      //}else{  
-      //  checkCreateGameboard = true; 
-      
-
-      //line(0, 0, 500, 500);
+      createGameboard();
+      if (displayTextandConnectCell == true){
+        displaySelectedText();
+      }
 
     }
 
@@ -194,6 +215,7 @@ public class Sketch extends PApplet {
     if (results) {
       wordHunt = false;
       image(background, 0, 0);
+
       fill(0);
       textSize(30);
       textAlign(CENTER);
@@ -202,6 +224,13 @@ public class Sketch extends PApplet {
 
   }
 
+  /**
+   * Created a rounded rectangle
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   */
   public void roundedRect(int x, int y, int width, int height) {
     noStroke();
     rect(x + width / 10, y, width - width / 5, height);
@@ -231,6 +260,9 @@ public class Sketch extends PApplet {
     return letters;
   }
 
+  /**
+   * Set flags to true when mouse drag even starts
+   */
   public void mouseDragged() {
     if (wordHunt) {
 
@@ -238,57 +270,72 @@ public class Sketch extends PApplet {
       strokeWeight(10);
 
       checkCreateGameboard = true;
-      displaySelectedText();
+      displayTextandConnectCell = true;
+      //displaySelectedText();
     }
   }
 
+  /**
+   * Private method to display text and highlight cell and connect cell when mouse dragged over cell boxes
+   */
   private void displaySelectedText(){
     int intMargin2 = intCellWidth / 4;
     int intCell2Width = intCellWidth / 2;
     int intCell2Height = intCellHeight / 2;
-    int intCellX1;
-    int intCellX2;
-    int intCellY1;
-    int intCellY2;
+    int intCell2X1;
+    int intCell2X2;
+    int intCell2Y1;
+    int intCell2Y2;
+    int intCellX;
+    int intCellY;
+
 
     for (int c = 0; c < intColCount; c++) {
       for (int r = 0; r < intRowCount; r++) {
-        intCellX1 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
-        intCellX2 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56 + intCell2Width;
-        intCellY1 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
-        intCellY2 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56 + intCell2Height;
+        intCell2X1 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+        intCell2X2 = intMargin + intMargin * c + intMargin2 + intMargin2 * 2 * c + intCell2Width * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56 + intCell2Width;
+        intCell2Y1 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+        intCell2Y2 = intMargin + intMargin * r + intMargin2 + intMargin2 * 2 * r + intCell2Height * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56 + intCell2Height;
 
-        if ((mouseX > intCellX1) && (mouseX < intCellX2) && (mouseY > intCellY1) && (mouseY < intCellY2) && cGrid[r][c].getStatus() == false && isAdjacent(r, c) && canSelect(cGrid[r][c], wordChars.get(cnt - 1))) {
+        intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+        intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+        
+        if ((mouseX > intCell2X1) && (mouseX < intCell2X2) && (mouseY > intCell2Y1) && (mouseY < intCell2Y2) && cGrid[r][c].getStatus() == false && isAdjacent(r, c) && canSelect(cGrid[r][c], wordChars.get(cnt - 1))) {
           wordChars.add(cGrid[r][c]);
           cGrid[r][c].setStatus(true);
-          cGrid[r][c].setCellXY(intCellX1 + intCellWidth / 2, intCellY1 + intCellHeight / 2);
+          cGrid[r][c].setCellXY(intCellX + intCellWidth / 2, intCellY + intCellHeight / 2);
 
           word += cGrid[r][c].getLetter();
           
-          image(background, 0, 0);
-          //createGameboard();
+          drawGridBg();
+
+          fill(0);
           textSize(40);
           text(word, (width / 2), 150);
-          cellMidX = wordChars.get(cnt).getCellX();
-          cellMidY = wordChars.get(cnt).getCellY();
-          prevCellMidX = wordChars.get(cnt - 1).getCellX();
-          prevCellMidY = wordChars.get(cnt - 1).getCellY();
-          createGameboard(cellMidX, cellMidY, prevCellMidX, prevCellMidY);
-          //line(mouseX, mouseY, pmouseX, pmouseY);
-          //line(wordChars.get(cnt).getCellX(), wordChars.get(cnt).getCellY(), wordChars.get(cnt - 1).getCellX(), wordChars.get(cnt - 1).getCellY());
-          
           
           doAddWord(cnt, word);
 
-          cnt++;
-          
-          
+          cnt++;       
         
         }
         
       }
-    } 
+    }
+
+    stroke(150);
+    strokeWeight(7);
+    for (int i=0; i< wordChars.size(); i ++){
+      if (i >= 1){
+        line(wordChars.get(i-1).getCellX(), wordChars.get(i-1).getCellY(), wordChars.get(i).getCellX(), wordChars.get(i).getCellY());
+      } else {
+
+      }  
+    }
   }
+
+  /**
+   * Highlight cell and display text when mouse pressed
+   */
   public void mousePressed() {
     
     if (homeScreen) {
@@ -344,9 +391,9 @@ public class Sketch extends PApplet {
       if (doAddWord(cnt, word) == 2) {
         wordList.add(word);
       }
-
-      image(background, 0, 0);
+      checkDrawBg = true;
       checkCreateGameboard = true;
+      displayTextandConnectCell = false;
 
       word = "";
       wordChars.clear();
@@ -441,11 +488,12 @@ public class Sketch extends PApplet {
   /**
    * This method creates game board when its called
    */
-  private void createGameboard(int x, int y, int x2, int y2){
+  private void createGameboard(){
 
     if (checkCreateGameboard) {
 
       int count = 0;
+
       for (int r  = 0; r < intRowCount; r++) {
         for (int c = 0; c < intColCount; c++) {
           // change colour to white if array value is true
@@ -470,8 +518,6 @@ public class Sketch extends PApplet {
           textAlign(CENTER, CENTER);
           text(randomLetters.get(count), intCellX, intCellY, intCellWidth, intCellHeight);
           count++;
-
-          line(x, y, x2, y2);
         }
       }
     }
@@ -518,6 +564,12 @@ public class Sketch extends PApplet {
     }
     catch (FileNotFoundException ignored) {
     }
+  }
+
+  public void drawGridBg() {
+    image(background, 0, 0);
+    fill(0, 100);
+    rect((intWindowWidth - intGameWidth) / 2, (intWindowHeight - intGameHeight) / 2, intGameWidth, intGameHeight, 15);
   }
   class Cell {
 
