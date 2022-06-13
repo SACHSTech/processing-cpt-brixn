@@ -82,13 +82,15 @@ public class Sketch extends PApplet {
   boolean checkCreateGameboard = true;
   boolean displayTextandConnectCell = false;
   boolean checkDrawBg = true;
+  boolean drawTime = false;
 
   String word = "";
   int points;
 
   boolean newWord;
     
-  int time = 6000;
+  int intTime = 6000;
+  Integer IntDisplayTime;
 
   public void settings() {
     // set window size according to width and height variables which are calculated using the cell and intMargin dimensions
@@ -180,17 +182,21 @@ public class Sketch extends PApplet {
     }
 
     if (wordHunt) {
-      if (time == 0) {
+      if (intTime == 0) {
         results = true;
       }
-      time--;
+      IntDisplayTime = intTime / 100;
+
+      if ((float)(intTime / 100) == (float)intTime / 100) {
+        text(IntDisplayTime.toString(), 0, 0);
+        System.out.println(IntDisplayTime);
+      }
+      intTime--;
 
       noStroke();
       rect(200, 50, 200, 80);
       
       text("", 200, 50, 200, 80);
-
-      //System.out.println(time / 100);
 
       wordHuntInst = false;
       homeScreen = false;
@@ -380,8 +386,8 @@ public class Sketch extends PApplet {
   public void mouseReleased() {
 
     if (wordHunt) {
-      int intGridCol = (int) ((mouseX - (intMargin + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellWidth));
-      int intGridRow = (int) ((mouseY - (intMargin + centerVert(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellHeight));
+      //int intGridCol = (int) ((mouseX - (intMargin + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellWidth));
+      //int intGridRow = (int) ((mouseY - (intMargin + centerVert(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellHeight));
       for (int c = 0; c < intColCount; c++){
         for (int r = 0; r < intRowCount; r++){
           cGrid[r][c].setStatus(false);
