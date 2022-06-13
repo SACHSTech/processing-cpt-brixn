@@ -212,6 +212,7 @@ avail
 avens
 avers
 avert
+avery
 avian
 avoid
 await
@@ -488,6 +489,7 @@ break
 bream
 breed
 brews
+brian
 briar
 bribe
 brick
@@ -603,6 +605,7 @@ casts
 catch
 cater
 cause
+cavan
 caved
 caver
 caves
