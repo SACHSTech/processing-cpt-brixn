@@ -86,7 +86,6 @@ public class Sketch extends PApplet {
 
   String word = "";
   int points;
-
   boolean newWord;
     
   int intTime = 6000;
@@ -180,14 +179,16 @@ public class Sketch extends PApplet {
 
     if (keyPressed && key == ' ' && wordHuntInst == true) {
       wordHunt = true;
+      checkDrawBg = true;
     }
 
     if (wordHunt) {
+      checkCreateGameboard = true;
       wordHuntInst = false;
       homeScreen = false;
       setupWordGrid();
       isSetup = true;
-      
+
       if (checkDrawBg == true) {
         drawGridBg();
         checkDrawBg = false;
@@ -234,13 +235,52 @@ public class Sketch extends PApplet {
       wordHunt = false;
       image(background, 0, 0);
 
+      fill(50, 100);
+      rect(100, 60, 400, 82);
+
       fill(255, 100);
       rect(150, 150, 300, 550, 14);
 
       fill(0);
-      textFont(poppins, 35);
+      textFont(poppins, 30);
       textAlign(CENTER);
-      text("POINTS: " + points, width / 2, 100);
+      text("TOTAL POINTS: " + points, intWindowWidth / 2, 100);
+
+      textFont(calibri, 25);
+      text("total words: " + wordList.size(), intWindowWidth / 2, 130);
+
+      textFont(calibri, 22);
+      textAlign(LEFT);
+      int intWordDispX = 190;
+      int intWordDispY;
+      int x = 0;
+      // loop through list of scored words and display in two columns
+      for (int i = 0; i < wordList.size(); i++) {
+
+        if (200 + x * 30 > 650) {
+          intWordDispX = 340;
+          x = 0;
+        }
+        intWordDispY = 200 + x * 30;
+    
+        text(wordList.get(i), intWordDispX, intWordDispY);
+        x++;
+      }
+
+      fill(0);
+      textAlign(CENTER);
+      textFont(calibri, 14);
+      text("PLAY AGAIN", 490, (float)762);
+
+      fill(0);
+      rect(530, 750, 40, 15);
+      triangle(570, 740, 570, 775, 585, (float)757.5);
+      
+      // return to homescreen if user presses play again
+      if (mousePressed == true && mouseX > 490 && mouseX < 585 && mouseY > 740 && mouseY < 775 && results == true) {
+        results = false;
+        homeScreen = true;
+      }
     }
   }
 
@@ -334,10 +374,8 @@ public class Sketch extends PApplet {
           
           doAddWord(cnt, word);
 
-          cnt++;       
-        
-        }
-        
+          cnt++;
+        } 
       }
     }
 
@@ -593,6 +631,7 @@ public class Sketch extends PApplet {
     rect((intWindowWidth - intGameWidth) / 2, (intWindowHeight - intGameHeight) / 2, intGameWidth, intGameHeight, 15);
   }
 
+  // cell class to store attributes of each cell in the grid
   class Cell {
 
     // center coordinates of cells
@@ -683,6 +722,5 @@ public class Sketch extends PApplet {
     public void setC(int c) {
       this.cVal = c;
     }
-
   }
 }
