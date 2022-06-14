@@ -79,8 +79,8 @@ public class Sketch extends PApplet {
   boolean wordHunt = false;
   boolean results = false;
 
-  boolean checkCreateGameboard = true;
-  boolean displayTextandConnectCell = false;
+  boolean blnCheckCreateGameboard = true;
+  boolean blnDisplayTextAndConnectCell = false;
   boolean checkDrawBg = true;
   boolean drawTime = false;
 
@@ -183,7 +183,7 @@ public class Sketch extends PApplet {
     }
 
     if (wordHunt) {
-      checkCreateGameboard = true;
+      blnCheckCreateGameboard = true;
       wordHuntInst = false;
       homeScreen = false;
       setupWordGrid();
@@ -195,8 +195,8 @@ public class Sketch extends PApplet {
       }
 
       createGameboard();
-      if (displayTextandConnectCell == true){
-        displaySelectedText();
+      if (blnDisplayTextAndConnectCell == true){
+        selectAndConnectCells();
       }
 
       // go to results screen (end game) when time reaches 0 or if user presses control
@@ -270,7 +270,7 @@ public class Sketch extends PApplet {
       fill(0);
       textAlign(CENTER);
       textFont(calibri, 14);
-      text("PLAY AGAIN", 490, (float)762);
+      text("Play Again", 490, (float)762);
 
       fill(0);
       rect(530, 750, 40, 15);
@@ -282,32 +282,6 @@ public class Sketch extends PApplet {
         homeScreen = true;
       }
     }
-  }
-
-  /**
-   * Creates a rounded rectangle (i was unaware of the rectangle radius value at this time)
-   * @param x
-   * @param y
-   * @param width
-   * @param height
-   */
-  public void roundedRect(int x, int y, int width, int height) {
-    noStroke();
-    rect(x + width / 10, y, width - width / 5, height);
-    rect(x, y + height / 10, width, height - height / 5);
-    ellipse(x + width / 10, y + height / 10, width / 5, height / 5);
-    ellipse(x + width - width / 10, y + height / 10, width / 5, height / 5);
-    ellipse(x + width / 10, y + height - height / 10, width / 5, height / 5);
-    ellipse(x + width - width / 10, y + height - height / 10, width / 5, height / 5);
-    }
-
-  public int centerHoriz(int intElementWidth) {
-    return((intWindowWidth - intElementWidth) / 2);
-  }
-
-  // returns value that will center the element verticaly
-  public int centerVert(int intElementHeight) {
-    return((intWindowHeight - intElementHeight) / 2);
   }
 
   public ArrayList<String> getLetterList() {
@@ -325,19 +299,15 @@ public class Sketch extends PApplet {
    */
   public void mouseDragged() {
     if (wordHunt) {
-
-      strokeCap(PROJECT);
-      strokeWeight(10);
-
-      checkCreateGameboard = true;
-      displayTextandConnectCell = true;
+      blnCheckCreateGameboard = true;
+      blnDisplayTextAndConnectCell = true;
     }
   }
 
   /**
    * Private method to display text and highlight cell and connect cell when mouse dragged over cell boxes
    */
-  private void displaySelectedText(){
+  public void selectAndConnectCells(){
     int intMargin2 = intCellWidth / 4;
     int intCell2Width = intCellWidth / 2;
     int intCell2Height = intCellHeight / 2;
@@ -402,7 +372,7 @@ public class Sketch extends PApplet {
     }
 
     if (wordHunt) {
-      checkCreateGameboard = true;
+      blnCheckCreateGameboard = true;
       for (int c = 0; c < intColCount; c++) {
         for (int r = 0; r < intRowCount; r++) {
           int intCellX1 = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
@@ -439,8 +409,6 @@ public class Sketch extends PApplet {
   public void mouseReleased() {
 
     if (wordHunt) {
-      //int intGridCol = (int) ((mouseX - (intMargin + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellWidth));
-      //int intGridRow = (int) ((mouseY - (intMargin + centerVert(intGameWidth + intGameWidth / 28) + intGameWidth / 56)) / (intMargin + intCellHeight));
       for (int c = 0; c < intColCount; c++){
         for (int r = 0; r < intRowCount; r++){
           cGrid[r][c].setStatus(false);
@@ -451,8 +419,8 @@ public class Sketch extends PApplet {
         wordList.add(word);
       }
       checkDrawBg = true;
-      checkCreateGameboard = true;
-      displayTextandConnectCell = false;
+      blnCheckCreateGameboard = true;
+      blnDisplayTextAndConnectCell = false;
 
       word = "";
       wordChars.clear();
@@ -462,125 +430,6 @@ public class Sketch extends PApplet {
         System.out.println(wordList.get(i));
       }
     }
-  }
-
-  public int doAddWord(int count, String word) {
-    if (wordList.contains(word)) {
-      //you already got the word
-      return 1;
-    }
-    else if (cnt == 3 && threeLetterWords.contains(word.toLowerCase())) {
-      //true
-      points += 100;
-      return 2;
-    }
-    else if (cnt == 4 && fourLetterWords.contains(word.toLowerCase())) {
-      points += 400;
-      return 2;
-    }
-    else if (cnt == 5 && fiveLetterWords.contains(word.toLowerCase())) {
-      points += 800;
-      return 2;
-    }
-    else if (cnt == 6 && sixLetterWords.contains(word.toLowerCase())) {
-      points += 1400;
-      return 2;
-    }
-    else if (cnt == 7 && sevenLetterWords.contains(word.toLowerCase())) {
-      points += 1800;
-      return 2;
-    }
-    else if (cnt == 8 && eightLetterWords.contains(word.toLowerCase())) {
-      points += 2200;
-      return 2;
-    }
-    else {
-      //false
-      return 3;
-    }
-  }
-  public boolean isAdjacent(int r, int c) {
-    if (r != 0 && r != 3 && c != 0 && c != 3) {
-      return cGrid[r-1][c-1].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r-1][c+1].getStatus() || cGrid[r][c-1].getStatus() || cGrid[r][c+1].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r+1][c].getStatus() || cGrid[r+1][c+1].getStatus();
-    }
-    else if (r == 0 && c == 0) {
-      return cGrid[r+1][c].getStatus() || cGrid[r+1][c+1].getStatus() || cGrid[r][c+1].getStatus();
-    }
-    else if (r == 0 && c == 3) {
-      return cGrid[r+1][c].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r][c-1].getStatus();
-    }
-    else if (r == 3 && c == 0) {
-      return cGrid[r-1][c].getStatus() || cGrid[r-1][c+1].getStatus() || cGrid[r][c+1].getStatus();
-    }
-    else if (r == 3 && c == 3) {
-      return cGrid[r-1][c].getStatus() || cGrid[r-1][c-1].getStatus() || cGrid[r][c-1].getStatus();
-    }
-
-    else if (r == 0) {
-      return cGrid[r][c-1].getStatus() || cGrid[r][c+1].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r+1][c].getStatus() || cGrid[r+1][c+1].getStatus();
-    }
-    else if (r == 3) {
-      return cGrid[r-1][c-1].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r-1][c+1].getStatus() || cGrid[r][c-1].getStatus() || cGrid[r][c+1].getStatus();
-    }
-
-    else if (c == 0) {
-      return cGrid[r+1][c].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r+1][c+1].getStatus() || cGrid[r][c+1].getStatus() || cGrid[r-1][c+1].getStatus(); 
-    }
-    else if (c == 3) {
-      return cGrid[r+1][c].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r][c-1].getStatus() || cGrid[r-1][c-1].getStatus();
-    }
-    else {
-      return false;
-    }
-  }
-
-  
-  public boolean canSelect(Cell current, Cell previous) {
-    if (Math.abs(current.cVal - previous.cVal) != 1 && Math.abs(current.rVal - previous.rVal) != 1) {
-      return false;
-    }
-    else {
-      return true;
-    }
-  }
-
-  /**
-   * This method creates game board when its called
-   */
-  private void createGameboard(){
-
-    if (checkCreateGameboard) {
-
-      int count = 0;
-
-      for (int r  = 0; r < intRowCount; r++) {
-        for (int c = 0; c < intColCount; c++) {
-          // change colour to white if array value is true
-          if (cGrid[r][c].getStatus()){
-            intCellR = 255;
-            intCellG = 255; 
-            intCellB = 255;
-          }
-          else {
-            intCellR = 235;
-            intCellG = 232; 
-            intCellB = 207;
-          }
-          
-          fill(intCellR, intCellG, intCellB);
-          int intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
-          int intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
-          roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
-
-          fill(0);
-          textFont(calibri);
-          textAlign(CENTER, CENTER);
-          text(randomLetters.get(count), intCellX, intCellY, intCellWidth, intCellHeight);
-          count++;
-        }
-      }
-    }
-    checkCreateGameboard = false;
   }
 
   public void setupWordGrid() {
@@ -608,6 +457,7 @@ public class Sketch extends PApplet {
 
     }
   }
+  
 
   public void setDictionary() {
     try {
@@ -624,65 +474,261 @@ public class Sketch extends PApplet {
     catch (FileNotFoundException ignored) {
     }
   }
+  
 
+  // Methods that determine validity of words and selected cells
+
+
+  /**
+   * Method to determine whether to add the selected 'word' to the found word list
+   * @param wordLen: 
+   * @param strWord
+   * @return
+   */
+  public int doAddWord(int wordLen, String strWord) {
+    // Word has already been found
+    if (wordList.contains(word)) {
+      return 1;
+    }
+
+    // Word is valid
+    else if (wordLen == 3 && threeLetterWords.contains(strWord.toLowerCase())) {
+      points += 100;
+      return 2;
+    }
+    else if (wordLen == 4 && fourLetterWords.contains(strWord.toLowerCase())) {
+      points += 400;
+      return 2;
+    }
+    else if (wordLen == 5 && fiveLetterWords.contains(strWord.toLowerCase())) {
+      points += 800;
+      return 2;
+    }
+    else if (wordLen == 6 && sixLetterWords.contains(strWord.toLowerCase())) {
+      points += 1400;
+      return 2;
+    }
+    else if (wordLen == 7 && sevenLetterWords.contains(strWord.toLowerCase())) {
+      points += 1800;
+      return 2;
+    }
+    else if (wordLen == 8 && eightLetterWords.contains(strWord.toLowerCase())) {
+      points += 2200;
+      return 2;
+    }
+
+    // Word is not valid
+    else {
+      return 3;
+    }
+  }
+
+  /**
+   * Method to determine if a cell object in the 2d array is adjacent to a selected cell
+   * @param r: row value
+   * @param c: column value
+   * @return boolean value based on if a cell is adjacnet to any selected cells
+   */
+  public boolean isAdjacent(int r, int c) {
+    // If cell is not on the edges of the grid
+    if (r != 0 && r != 3 && c != 0 && c != 3) {
+      return cGrid[r-1][c-1].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r-1][c+1].getStatus() || cGrid[r][c-1].getStatus() || cGrid[r][c+1].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r+1][c].getStatus() || cGrid[r+1][c+1].getStatus();
+    }
+
+    // If cell is on top left
+    else if (r == 0 && c == 0) {
+      return cGrid[r+1][c].getStatus() || cGrid[r+1][c+1].getStatus() || cGrid[r][c+1].getStatus();
+    }
+    // If cell is on top right
+    else if (r == 0 && c == 3) {
+      return cGrid[r+1][c].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r][c-1].getStatus();
+    }
+    // If cell is on bottom left
+    else if (r == 3 && c == 0) {
+      return cGrid[r-1][c].getStatus() || cGrid[r-1][c+1].getStatus() || cGrid[r][c+1].getStatus();
+    }
+    // If cell is on bottom right
+    else if (r == 3 && c == 3) {
+      return cGrid[r-1][c].getStatus() || cGrid[r-1][c-1].getStatus() || cGrid[r][c-1].getStatus();
+    }
+
+    // If cell is on the top edge
+    else if (r == 0) {
+      return cGrid[r][c-1].getStatus() || cGrid[r][c+1].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r+1][c].getStatus() || cGrid[r+1][c+1].getStatus();
+    }
+    // If cell is on the bottom edge
+    else if (r == 3) {
+      return cGrid[r-1][c-1].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r-1][c+1].getStatus() || cGrid[r][c-1].getStatus() || cGrid[r][c+1].getStatus();
+    }
+    // If cell is on the left edge
+    else if (c == 0) {
+      return cGrid[r+1][c].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r+1][c+1].getStatus() || cGrid[r][c+1].getStatus() || cGrid[r-1][c+1].getStatus(); 
+    }
+    // If cell is on the right edge
+    else if (c == 3) {
+      return cGrid[r+1][c].getStatus() || cGrid[r-1][c].getStatus() || cGrid[r+1][c-1].getStatus() || cGrid[r][c-1].getStatus() || cGrid[r-1][c-1].getStatus();
+    }
+    // Otherwise return false
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * Determines whether or not a cell can be selected based on the previous selected cell
+   * @param current: Current cell that mouse is on
+   * @param previous: Previous cell that mouse is on
+   * @return true or false of if a cell can be selected
+   */
+  public boolean canSelect(Cell current, Cell previous) {
+    // Check if the current cell's collumn and row is 1 away from the previous cell's collumn and row number
+    if (Math.abs(current.cVal - previous.cVal) != 1 && Math.abs(current.rVal - previous.rVal) != 1) {
+      return false;
+    }
+    return true;
+  }
+
+
+  // Methods that help draw the game
+
+
+  /**
+   * Creates the game board (cells) when its called, does it only once even if it is called in draw()
+   */
+  private void createGameboard(){
+
+    // Checking if boolean value is true
+    if (blnCheckCreateGameboard) {
+
+      // Variable tracks the order of cells in the 2d array
+      int intCellCount = 0;
+
+      // Intialize cell x and y coordinates to draw each cell (values change according to how many rows and columns there are)
+      int intCellX;
+      int intCellY;
+
+      // Iterate through the 2d array to draw cell grid
+      for (int r  = 0; r < intRowCount; r++) {
+        for (int c = 0; c < intColCount; c++) {
+          // Change colour to white if selected status of cell object is true
+          if (cGrid[r][c].getStatus()) {
+            intCellR = 255;
+            intCellG = 255; 
+            intCellB = 255;
+          }
+          // Otherwise, keep rgb at beige
+          else {
+            intCellR = 235;
+            intCellG = 232; 
+            intCellB = 207;
+          }
+          
+          fill(intCellR, intCellG, intCellB);
+
+          // Set cell x and y coordinates
+          intCellX = intMargin + intMargin * c + intCellWidth * c + centerHoriz(intGameWidth + intGameWidth / 28) + intGameWidth / 56;
+          intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
+          // Draw cells
+          roundedRect(intCellX, intCellY, intCellWidth, intCellHeight);
+
+          // Display word characters as they are being selected
+          fill(0);
+          textFont(calibri);
+          textAlign(CENTER, CENTER);
+          text(randomLetters.get(intCellCount), intCellX, intCellY, intCellWidth, intCellHeight);
+
+          // Increment variable one each iteration
+          intCellCount++;
+        }
+      }
+    }
+    // Change boolean value to false so method only runs once
+    blnCheckCreateGameboard = false;
+  }
+
+  /** 
+   * Method to determine the centering x-value of an element based on its width and the window width
+   * @param intElementWidth: width of element that is being centered
+   * @return the value that will center an element horizontally
+   */
+  public int centerHoriz(int intElementWidth) {
+    return((intWindowWidth - intElementWidth) / 2);
+  }
+
+  /** 
+   * Method to determine the centering y-value of an element based on its height and the window height
+   * @param intElementHeight: width of element that is being centered
+   * @return the value that will center an element vertically
+   */
+  public int centerVert(int intElementHeight) {
+    return((intWindowHeight - intElementHeight) / 2);
+  }
+
+  /**
+   * Creates a rounded rectangle (i was unaware of the rectangle radius value at this time)
+   * @param x: x coordinate to draw rectangle
+   * @param y: y coordinate to draw rectangle
+   * @param width: width of rectangle
+   * @param height: height of rectangle
+   */
+  public void roundedRect(int x, int y, int width, int height) {
+    noStroke();
+    rect(x + width / 10, y, width - width / 5, height);
+    rect(x, y + height / 10, width, height - height / 5);
+    ellipse(x + width / 10, y + height / 10, width / 5, height / 5);
+    ellipse(x + width - width / 10, y + height / 10, width / 5, height / 5);
+    ellipse(x + width / 10, y + height - height / 10, width / 5, height / 5);
+    ellipse(x + width - width / 10, y + height - height / 10, width / 5, height / 5);
+  }
+
+  /**
+   * Draws background of word search game (image + opaque rectangle that holds the cells)
+   */
   public void drawGridBg() {
     image(background, 0, 0);
     fill(0, 100);
     rect((intWindowWidth - intGameWidth) / 2, (intWindowHeight - intGameHeight) / 2, intGameWidth, intGameHeight, 15);
   }
 
-  // cell class to store attributes of each cell in the grid
+  // Cell class to store attributes of each cell in the grid
   class Cell {
 
-    // center coordinates of cells
-    int cellX;
-    int cellY;
+    // Center coordinates of cells
+    int intCellX;
+    int intCellY;
 
-    String letter;
+    // Cell letter
+    String strLetter;
 
     boolean isSelected;
-    boolean isNewWord;
 
     int intCellWidth; 
     int intCellHeight;
 
-    int num;
-
+    // Column and row values of cell
     int rVal;
     int cVal;
 
-    public Cell(int cellX, int cellY, int intCellWidth, int intCellHeight, int r, int c){
-      this.cellX = cellX;
-      this.cellY = cellY;
-      this.intCellWidth = intCellWidth;
-      this.intCellWidth = intCellHeight;
-      this.rVal = r;
-      this.cVal = c;
-      isSelected = false;
-    }
-
+    // Default constructor
     public Cell(){
       isSelected = false;
     }
 
+    // Getter methods
     public int getCellX(){
-      return cellX;
+      return intCellX;
     }
 
     public int getCellY(){
-      return cellY;
+      return intCellY;
     }
 
     public String getLetter(){
-      return letter;
+      return strLetter;
     }
 
     public boolean getStatus() {
       return isSelected;
-    }
-
-    public int getNum() {
-      return num;
     }
 
     public int rVal() {
@@ -693,8 +739,9 @@ public class Sketch extends PApplet {
       return cVal;
     }
 
+    // Setter methods
     public void setLetter(String letter){
-      this.letter = letter;
+      this.strLetter = letter;
     }
 
     public void setCellDimensions(int intCellWidth, int intCellHeight){
@@ -703,16 +750,12 @@ public class Sketch extends PApplet {
     }
 
     public void setCellXY(int cellX, int cellY){
-      this.cellX = cellX;
-      this.cellY = cellY;
+      this.intCellX = cellX;
+      this.intCellY = cellY;
     }
 
     public void setStatus(boolean isSelected) {
       this.isSelected = isSelected;
-    }
-
-    public void setNum(int num) {
-      this.num = num;
     }
 
     public void setR(int r) {
