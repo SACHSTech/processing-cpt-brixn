@@ -425,20 +425,11 @@ public class Sketch extends PApplet {
       word = "";
       wordChars.clear();
       cnt = 0;
-
-      for (int i = 0; i < wordList.size(); i ++) {
-        System.out.println(wordList.get(i));
-      }
     }
   }
 
   public void setupWordGrid() {
     if (isSetup == false) {
-      String strLetters = "";
-      for (String letter : randomLetters) {
-        strLetters += letter;
-      }
-      System.out.println(strLetters);
 
       int count = 0;
 
