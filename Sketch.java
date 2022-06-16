@@ -75,7 +75,7 @@ public class Sketch extends PApplet {
   // List of random letters
   ArrayList<String> strRandomLetters = getLetterList();
   // Arraylist of characters in a word (result on mouse released)
-  ArrayList<Cell> strWordChars = new ArrayList<Cell>();
+  ArrayList<Cell> cellWordChars = new ArrayList<Cell>();
 
   // RGB values for the cell
   int intCellR;
@@ -347,7 +347,7 @@ public class Sketch extends PApplet {
           // Check if mouse press is on a cell
           if ((mouseX > intCellX1) && (mouseX < intCellX2) && (mouseY > intCellY1) && (mouseY < intCellY2)) {
             // Select the cell, add it to the array of characters that make a word and set the cell object values
-            strWordChars.add(cGrid[r][c]);
+            cellWordChars.add(cGrid[r][c]);
             cGrid[r][c].setStatus(true);
             cGrid[r][c].setCellXY(intCellX1 + intCellWidth / 2, intCellY1 + intCellHeight / 2);
       
@@ -392,7 +392,7 @@ public class Sketch extends PApplet {
       blnDisplayTextAndConnectCell = false;
 
       strWord = "";
-      strWordChars.clear();
+      cellWordChars.clear();
       intCountLetters = 0;
     }
   }
@@ -427,9 +427,9 @@ public class Sketch extends PApplet {
         intCellY = intMargin + intMargin * r + intCellHeight * r + centerVert(intGameHeight + intGameHeight / 28) + intGameHeight / 56;
         
         // Check if mouse is detected in a cell, if it's adjacent to a selected cell, and if it's the right distance from the last cell
-        if ((mouseX > intCell2X1) && (mouseX < intCell2X2) && (mouseY > intCell2Y1) && (mouseY < intCell2Y2) && cGrid[r][c].getStatus() == false && isAdjacent(r, c) && canSelect(cGrid[r][c], strWordChars.get(intCountLetters - 1))) {
+        if ((mouseX > intCell2X1) && (mouseX < intCell2X2) && (mouseY > intCell2Y1) && (mouseY < intCell2Y2) && cGrid[r][c].getStatus() == false && isAdjacent(r, c) && canSelect(cGrid[r][c], cellWordChars.get(intCountLetters - 1))) {
           // Select the cell, add it to the array of characters that make a word and set the cell object values
-          strWordChars.add(cGrid[r][c]);
+          cellWordChars.add(cGrid[r][c]);
           cGrid[r][c].setStatus(true);
           cGrid[r][c].setCellXY(intCellX + intCellWidth / 2, intCellY + intCellHeight / 2);
 
@@ -443,8 +443,6 @@ public class Sketch extends PApplet {
           fill(0);
           textSize(40);
           text(strWord, (width / 2), 150);
-          
-          doAddWord(intCountLetters, strWord);
 
           intCountLetters++;
         } 
@@ -454,9 +452,9 @@ public class Sketch extends PApplet {
     // Draw line that connects selected cells
     stroke(150);
     strokeWeight(7);
-    for (int i=0; i< strWordChars.size(); i ++){
+    for (int i=0; i< cellWordChars.size(); i ++){
       if (i >= 1){
-        line(strWordChars.get(i-1).getCellX(), strWordChars.get(i-1).getCellY(), strWordChars.get(i).getCellX(), strWordChars.get(i).getCellY());
+        line(cellWordChars.get(i-1).getCellX(), cellWordChars.get(i-1).getCellY(), cellWordChars.get(i).getCellX(), cellWordChars.get(i).getCellY());
       } 
       else {
       }  
