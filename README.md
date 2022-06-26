@@ -1,4 +1,4 @@
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-c66648af7eb3fe8bc4f294546bfd86ef473780cde1dea487d3c4ff354943c9ae.svg)](https://classroom.github.com/online_ide?assignment_repo_id=7920725&assignment_repo_type=AssignmentRepo)
-# Program Title (edit this)
+# PWord Search
 
-Put your program description here.
+This is a word game, as of now there is only one game mode; word search. This game requires the player to connect a grid of randomized letters to make words. The objective is to score as many points as possible. Players must drag from each cell to the next to select words. The selected letters are highlighted in a different colour and displayed on top of the word grid. When they release the input, they will be awarded points based on whether or not the word is real as well as how many letters it has. Points start at valid three-letter words and increase as found words get bigger. The game does not have any notable limitations in terms of gameplay, but is missing a play again and high score tracking feature. It was not included because I ran out of time and I did not think it was that important to have.
